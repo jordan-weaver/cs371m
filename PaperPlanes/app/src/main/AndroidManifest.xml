@@ -15,10 +15,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="Lobby">
-        </activity>
         <activity android:name="GameState">
         </activity>
+        <activity android:name="Lobby"> </activity>
+        <activity android:name=".JoinGameActivity"> </activity>
     </application>
 
 </manifest>
