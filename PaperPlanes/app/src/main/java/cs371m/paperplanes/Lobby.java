@@ -31,11 +31,6 @@ public class Lobby extends Activity {
     private ListView gameList;
     private List<String> playerList;
     private boolean isHost;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +78,8 @@ public class Lobby extends Activity {
             public void onClick(View view) {
                 // Check number of players
                 // Start the game
+                Intent intent = new Intent(getApplicationContext(), GameState.class);
+                startActivity(intent);
             }
         });
         // If Cancel is pressed, check to see if host.
@@ -101,7 +98,6 @@ public class Lobby extends Activity {
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 }
 
