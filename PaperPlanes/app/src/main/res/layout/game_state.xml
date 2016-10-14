@@ -11,6 +11,7 @@
         <Button
             android:text="TURN LEFT"
             android:id="@+id/bankLeft"
+            android:alpha="0.2"
             android:fontFamily="monospace"
             android:layout_weight="1"
             android:layout_width="match_parent"
@@ -19,6 +20,7 @@
             android:text="TURN RIGHT"
             android:fontFamily="monospace"
             android:id="@+id/bankRight"
+            android:alpha="0.2"
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
