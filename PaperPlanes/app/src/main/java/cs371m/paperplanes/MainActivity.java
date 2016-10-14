@@ -12,6 +12,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Intent intent = new Intent(this, Lobby.class);
+        intent.putExtra("user", "IMMA HOST");
+        intent.putExtra("isHost", true);
         startActivity(intent);
     }
 }
