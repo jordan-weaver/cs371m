@@ -10,7 +10,9 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -24,6 +26,7 @@ import java.util.UUID;
 public class JoinGameActivity extends AppCompatActivity {
 
     ArrayList<BluetoothDevice> deviceList;
+    ArrayAdapter mArrayAdapter;
 
     // Create a BroadcastReceiver for ACTION_FOUND
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -33,10 +36,10 @@ public class JoinGameActivity extends AppCompatActivity {
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 // Get the BluetoothDevice object from the Intent
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                // Add the name and address to an array adapter to show in a ListView
                 deviceList.add(device);
                 Toast.makeText(context, "Added " + device.getName() + " to deviceList", Toast.LENGTH_SHORT).show();
-                //mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+                // Add the name and address to an array adapter to show in a ListView
+                mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
             }
         }
     };
@@ -51,7 +54,17 @@ public class JoinGameActivity extends AppCompatActivity {
         // Register the BroadcastReceiver
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
+        mArrayAdapter = new ArrayAdapter<String>(this, R.layout.activity_join_game);
+        ListView listHosts = (ListView) findViewById(R.id.listHosts);
+        listHosts.setAdapter(mArrayAdapter);
 
+        listHosts.setClickable(true);
+        listHosts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
 
     @Override
