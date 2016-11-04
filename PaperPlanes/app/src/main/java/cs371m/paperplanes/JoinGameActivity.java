@@ -54,6 +54,14 @@ public class JoinGameActivity extends AppCompatActivity {
         mArrayAdapter = new ArrayAdapter<String>(this, R.layout.activity_join_game);
         ListView listHosts = (ListView) findViewById(R.id.listHosts);
         listHosts.setAdapter(mArrayAdapter);
+
+        listHosts.setClickable(true);
+        listHosts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
 
     @Override
