@@ -62,11 +62,6 @@ public class JoinGameActivity extends AppCompatActivity {
 
         listHosts.setClickable(true);
         listHosts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-<<<<<<< HEAD
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-=======
->>>>>>> 9aceb24e8769bfcffaa78a075782172032fd5963
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
