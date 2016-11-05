@@ -29,6 +29,7 @@ public class JoinGameActivity extends AppCompatActivity {
 
     ArrayList<BluetoothDevice> deviceList;
     BluetoothArrayAdapter mArrayAdapter;
+    String hostUUID;
 
     // Create a BroadcastReceiver for ACTION_FOUND
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -41,6 +42,7 @@ public class JoinGameActivity extends AppCompatActivity {
                 deviceList.add(device);
                 mArrayAdapter.notifyDataSetChanged();
                 Toast.makeText(context, "Added " + device.getName() + " to deviceList", Toast.LENGTH_SHORT).show();
+                hostUUID = intent.getParcelableExtra(BluetoothDevice.EXTRA_UUID);
                 // Add the name and address to an array adapter to show in a ListView
             }
         }
@@ -103,7 +105,7 @@ public class JoinGameActivity extends AppCompatActivity {
             // Get a BluetoothSocket to connect with the given BluetoothDevice
             try {
                 // MY_UUID is the app's UUID string, also used by the server code
-                tmp = device.createRfcommSocketToServiceRecord(UUID.fromString(device.EXTRA_UUID));
+                tmp = device.createRfcommSocketToServiceRecord(UUID.fromString(hostUUID));
             } catch (IOException e) { }
             mmSocket = tmp;
         }

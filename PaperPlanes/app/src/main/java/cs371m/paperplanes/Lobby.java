@@ -53,7 +53,7 @@ public class Lobby extends AppCompatActivity {
 
         // bluetooth set up
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        MY_UUID = BluetoothDevice.EXTRA_UUID;
+        MY_UUID = UUID.randomUUID().toString();
         NAME = BluetoothDevice.EXTRA_NAME;
         // get the info for who is joining
         Intent intent = getIntent();
@@ -127,7 +127,7 @@ public class Lobby extends AppCompatActivity {
             try {
                 // MY_UUID is the app's UUID string, also used by the client code
                 tmp = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(NAME,
-                        UUID.fromString(MY_UUID));
+                        MY_UUID);
             } catch (IOException e) { }
             mmServerSocket = tmp;
         }
