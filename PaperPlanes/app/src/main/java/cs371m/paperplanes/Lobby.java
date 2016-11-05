@@ -26,6 +26,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import org.w3c.dom.Text;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -143,12 +144,13 @@ public class Lobby extends AppCompatActivity {
                 // If a connection was accepted
                 if (socket != null) {
                     // Do work to manage the connection (in a separate thread)
+                    SocketHandler.setServerSocket(mmServerSocket);
                     //manageConnectedSocket(socket);
-                    try {
-                        mmServerSocket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+//                    try {
+//                        mmServerSocket.close();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
                     break;
                 }
             }

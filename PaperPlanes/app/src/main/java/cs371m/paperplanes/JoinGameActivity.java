@@ -29,6 +29,7 @@ public class JoinGameActivity extends AppCompatActivity {
 
     ArrayList<BluetoothDevice> deviceList;
     BluetoothArrayAdapter mArrayAdapter;
+    String username;
 
     // Create a BroadcastReceiver for ACTION_FOUND
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -80,6 +81,7 @@ public class JoinGameActivity extends AppCompatActivity {
 
     protected void InitVars() {
         deviceList = new ArrayList<>();
+        username = getIntent().getStringExtra("user");
         Button cancelButton = (Button) findViewById(R.id.join_game_cancel_button);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,6 +127,11 @@ public class JoinGameActivity extends AppCompatActivity {
             }
 
             // Do work to manage the connection (in a separate thread)
+            SocketHandler.setClientSocket(mmSocket);
+            Intent intent = new Intent(getApplicationContext(), Lobby.class);
+            intent.putExtra("user", username);
+            intent.putExtra("isHost", false);
+            startActivity(intent);
             //manageConnectedSocket(mmSocket);
         }
 
