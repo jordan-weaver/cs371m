@@ -108,6 +108,13 @@ public class Lobby extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        if(isHost) {
+            Intent discoverableIntent = new
+                    Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+            startActivity(discoverableIntent);
+        }
     }
 
     private class AcceptThread extends Thread {
