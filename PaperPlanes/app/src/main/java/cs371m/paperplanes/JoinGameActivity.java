@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -52,13 +53,13 @@ public class JoinGameActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
         mArrayAdapter = new ArrayAdapter<String>(this, R.layout.activity_join_game);
-        ListView listHosts = (ListView) findViewById(R.id.listHosts);
+        ListView listHosts = (ListView) findViewById(R.id.list_hosts);
         listHosts.setAdapter(mArrayAdapter);
 
         listHosts.setClickable(true);
-        listHosts.setOnClickListener(new View.OnClickListener() {
+        listHosts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
             }
         });
