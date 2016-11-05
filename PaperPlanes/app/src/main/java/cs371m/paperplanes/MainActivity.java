@@ -51,6 +51,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button exitButton = (Button) findViewById(R.id.exit_button);
+        exitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     private void EstablishBluetooth() {
