@@ -40,7 +40,6 @@ public class JoinGameActivity extends AppCompatActivity {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 deviceList.add(device);
                 mArrayAdapter.notifyDataSetChanged();
-                Toast.makeText(context, "Added " + device.getName() + " to deviceList", Toast.LENGTH_SHORT).show();
                 // Add the name and address to an array adapter to show in a ListView
             }
         }
