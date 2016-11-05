@@ -55,6 +55,7 @@ public class JoinGameActivity extends AppCompatActivity {
         // Register the BroadcastReceiver
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
+        BluetoothAdapter.getDefaultAdapter().startDiscovery();
 
         mArrayAdapter = new BluetoothArrayAdapter (this, deviceList);
         ListView listHosts = (ListView) findViewById(R.id.list_hosts);
