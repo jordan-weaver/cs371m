@@ -126,8 +126,7 @@ public class Lobby extends AppCompatActivity {
             BluetoothServerSocket tmp = null;
             try {
                 // MY_UUID is the app's UUID string, also used by the client code
-                tmp = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(NAME,
-                        UUID.fromString(MY_UUID));
+                tmp = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(NAME, UUID.fromString(getString(R.string.uuid)));
             } catch (IOException e) { }
             mmServerSocket = tmp;
         }
