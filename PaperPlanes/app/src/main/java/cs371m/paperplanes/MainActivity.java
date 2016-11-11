@@ -50,14 +50,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        Button exitButton = (Button) findViewById(R.id.exit_button);
-        exitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
     }
 
     private void EstablishBluetooth() {
@@ -77,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == REQUEST_ENABLE_BT) {
             if(resultCode == RESULT_OK) {
-                Toast.makeText(this, "Successfully turned on bluetooth", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Successfully turned on bluetooth", Toast.LENGTH_SHORT).show();
             }
             else{
                 Toast.makeText(this, "Failed to turn on bluetooth", Toast.LENGTH_SHORT).show();

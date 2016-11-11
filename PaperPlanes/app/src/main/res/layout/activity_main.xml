@@ -24,6 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="[insert name here]"
+        android:maxLength="@integer/USERNAME_LENGTH"
         android:id="@+id/username_edittext"/>
     </LinearLayout>
 
@@ -39,11 +40,5 @@
         android:layout_gravity="center_horizontal"
         android:text="Join Game"
         android:id="@+id/join_game_button"/>
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="Exit"
-        android:id="@+id/exit_button"/>
 
 </LinearLayout>

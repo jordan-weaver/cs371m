@@ -68,7 +68,7 @@ public class JoinGameActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BluetoothDevice device = (BluetoothDevice) mArrayAdapter.getItem(position);
                 ConnectThread connectThread = new ConnectThread(device);
-                connectThread.run();
+                connectThread.start();
             }
         });
     }
@@ -127,12 +127,11 @@ public class JoinGameActivity extends AppCompatActivity {
             }
 
             // Do work to manage the connection (in a separate thread)
-            SocketHandler.setClientSocket(mmSocket);
+            SocketHandler.setSocket(mmSocket);
             Intent intent = new Intent(getApplicationContext(), Lobby.class);
             intent.putExtra("user", username);
             intent.putExtra("isHost", false);
             startActivity(intent);
-            //manageConnectedSocket(mmSocket);
         }
 
         /** Will cancel an in-progress connection, and close the socket */
