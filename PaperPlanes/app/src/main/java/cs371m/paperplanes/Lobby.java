@@ -147,7 +147,7 @@ public class Lobby extends AppCompatActivity {
         };
         // bluetooth set up
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        MY_UUID = BluetoothDevice.EXTRA_UUID;
+        MY_UUID = UUID.randomUUID().toString();
         NAME = BluetoothDevice.EXTRA_NAME;
         // get the info for who is joining
         Intent intent = getIntent();
