@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import android.os.Handler;
+import android.widget.Toast;
 
 import java.util.logging.LogRecord;
 
@@ -172,9 +173,22 @@ public class Lobby extends AppCompatActivity {
             public void onClick(View view) {
                 // Check number of players
                 // Start the game
+                /*
                 mBluetoothAdapter.setName(deviceName);
                 Intent intent = new Intent(getApplicationContext(), GameState.class);
                 startActivity(intent);
+                */
+                // Send client start the game
+                DataTransferThread dtThread = new DataTransferThread();
+                dtThread.start();
+                int nameLength = getResources().getInteger(R.integer.USERNAME_LENGTH);
+                byte[] byteArray = new byte[nameLength + 2];
+                byteArray[0] = BUFFER_START_GAME;
+                byte[] byteName = (byte []) "".getBytes();
+                for (int i = 0; i < byteName.length; i++) {
+                    byteArray[i+1] = byteName[i];
+                }
+                dtThread.write(byteArray);
             }
         });
         // If Cancel is pressed, check to see if host.
@@ -241,6 +255,10 @@ public class Lobby extends AppCompatActivity {
                                 // haha jk theres no other players its hard coded for 2 players
                                 Log.d("Lobby", "Client left game");
                                 break;
+                            // RESTEST CODE
+                            case BUFFER_START_GAME:
+                                // get game info and start intent for game
+                                Log.d("Lobby", "Host started game");
                             default:
                                 Log.d("Lobby", "Invalid buffer[0] value for host read");
                                 break;
@@ -251,7 +269,19 @@ public class Lobby extends AppCompatActivity {
                             case BUFFER_START_GAME:
                                 // get game info and start intent for game
                                 Log.d("Lobby", "Host started game");
+                                // RESTEST CODE
+                                DataTransferThread dtThread = new DataTransferThread();
+                                dtThread.start();
+                                int nameLength = getResources().getInteger(R.integer.USERNAME_LENGTH);
+                                byte[] byteArray = new byte[nameLength + 2];
+                                byteArray[0] = BUFFER_START_GAME;
+                                byte[] byteName = (byte []) "".getBytes();
+                                for (int i = 0; i < byteName.length; i++) {
+                                    byteArray[i+1] = byteName[i];
+                                }
+                                dtThread.write(byteArray);
                                 break;
+
                             case BUFFER_CANCEL_LOBBY:
                                 // quit out of activity
                                 // go to main or join? probably main
