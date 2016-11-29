@@ -54,6 +54,7 @@ public class Lobby extends AppCompatActivity {
 
     private Handler mHandler;
     private ListView gameList;
+    private DataTransferThread dtThread;
     private List<String> playerList;
     private boolean isHost;
     private String username;
@@ -100,7 +101,7 @@ public class Lobby extends AppCompatActivity {
         }
         else {
             // Send Host our name
-            DataTransferThread dtThread = new DataTransferThread();
+            dtThread = new DataTransferThread();
             dtThread.start();
             int nameLength = getResources().getInteger(R.integer.USERNAME_LENGTH);
             byte[] byteArray = new byte[nameLength + 2];
@@ -173,7 +174,11 @@ public class Lobby extends AppCompatActivity {
                 // Check number of players
                 // Start the game
                 mBluetoothAdapter.setName(deviceName);
+                byte[] byteArray = new byte[1];
+                byteArray[0] = BUFFER_START_GAME;
+                dtThread.write(byteArray);
                 Intent intent = new Intent(getApplicationContext(), GameState.class);
+                intent.putExtra("isHost", true);
                 startActivity(intent);
             }
         });
@@ -251,6 +256,9 @@ public class Lobby extends AppCompatActivity {
                             case BUFFER_START_GAME:
                                 // get game info and start intent for game
                                 Log.d("Lobby", "Host started game");
+                                Intent intent = new Intent(getApplicationContext(), GameState.class);
+                                intent.putExtra("isHost", false);
+                                startActivity(intent);
                                 break;
                             case BUFFER_CANCEL_LOBBY:
                                 // quit out of activity
@@ -323,8 +331,8 @@ public class Lobby extends AppCompatActivity {
                     // Do work to manage the connection (in a separate thread)
                     SocketHandler.setSocket(socket);
 
-                    // Send client our name
-                    DataTransferThread dtThread = new DataTransferThread();
+                    // Send client our names
+                    dtThread = new DataTransferThread();
                     dtThread.start();
                     int nameLength = getResources().getInteger(R.integer.USERNAME_LENGTH);
                     byte[] byteArray = new byte[nameLength + 2];

@@ -2,13 +2,17 @@ package cs371m.paperplanes;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.ParcelUuid;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -28,6 +32,7 @@ import java.util.UUID;
 public class JoinGameActivity extends AppCompatActivity {
 
     ArrayList<BluetoothDevice> deviceList;
+    ArrayList<String> alldeviceList;
     BluetoothArrayAdapter mArrayAdapter;
     String username;
     String hostUUID;
@@ -40,10 +45,18 @@ public class JoinGameActivity extends AppCompatActivity {
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 // Get the BluetoothDevice object from the Intent
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                deviceList.add(device);
-                mArrayAdapter.notifyDataSetChanged();
 
-                Toast.makeText(context, "Added " + device.getName() + " to deviceList", Toast.LENGTH_SHORT).show();
+                String name = device.getName();
+                Log.d("BroadcastReciever", "found " + name);
+                if(name == null)
+                    return;
+                String[] tokens = device.getName().split(" ");
+                if(tokens[0].equals(context.getResources().getString(R.string.usernameTag))) {
+                    Log.d("BroadcastReciever", "Added " + name);
+                    deviceList.add(device);
+                    mArrayAdapter.notifyDataSetChanged();
+                }
+
                 // Add the name and address to an array adapter to show in a ListView
             }
         }
@@ -58,6 +71,10 @@ public class JoinGameActivity extends AppCompatActivity {
         // Register the BroadcastReceiver
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
+
+        IntentFilter secondfilter = new IntentFilter(BluetoothDevice.ACTION_UUID);
+        registerReceiver(mReceiver, secondfilter);
+
         BluetoothAdapter.getDefaultAdapter().startDiscovery();
 
         mArrayAdapter = new BluetoothArrayAdapter (this, deviceList);
@@ -78,12 +95,13 @@ public class JoinGameActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         unregisterReceiver(mReceiver);
+        super.onDestroy();
     }
 
     protected void InitVars() {
         deviceList = new ArrayList<>();
+        alldeviceList = new ArrayList<>();
         username = getIntent().getStringExtra("user");
         Button cancelButton = (Button) findViewById(R.id.join_game_cancel_button);
         cancelButton.setOnClickListener(new View.OnClickListener() {

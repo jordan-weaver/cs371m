@@ -3,6 +3,7 @@ package cs371m.paperplanes;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.net.Uri;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,8 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.List;
+
+import static java.security.AccessController.getContext;
 
 /**
  * Created by Jordan on 11/4/2016.
@@ -19,8 +22,10 @@ public class BluetoothArrayAdapter extends BaseAdapter {
 
     List<BluetoothDevice> list;
     LayoutInflater inflater;
+    Context context;
 
     public BluetoothArrayAdapter(Context context, List<BluetoothDevice> list) {
+        this.context = context;
         inflater = LayoutInflater.from(context);
         this.list = list;
     }
@@ -53,9 +58,22 @@ public class BluetoothArrayAdapter extends BaseAdapter {
     }
 
     public void bindView(final BluetoothDevice data, View view, ViewGroup parent) {
-        String name = data.getName();
         TextView textView = (TextView) view.findViewById(R.id.available_lobbies_text);
-        textView.setText(name);
+
+        String name = data.getName();
+        if(name == null) {
+            textView.setText("NAME == NULL");
+        }
+
+        String[] nameTokens = name.split(" ");
+
+        if(nameTokens[0].equals(context.getResources().getString(R.string.usernameTag))) {
+            textView.setText(nameTokens[1]);
+        }
+        else {
+            textView.setText("nameTokens[0] != tag");
+        }
+
     }
 
     @Override

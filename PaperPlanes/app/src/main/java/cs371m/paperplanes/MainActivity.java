@@ -16,7 +16,6 @@ public class MainActivity extends AppCompatActivity {
 
     public EditText username;
     private final static int REQUEST_ENABLE_BT = 888;
-    private final static String bullshit_uuid = "00001101-0000-1000-8000-00805F9B34FB";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), Lobby.class);
-                intent.putExtra("user", username.getText().toString());
+                intent.putExtra("user", getResources().getString(R.string.usernameTag) + " " + username.getText().toString());
                 intent.putExtra("isHost", true);
                 startActivity(intent);
             }
@@ -73,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
             }
             else{
                 Toast.makeText(this, "Failed to turn on bluetooth", Toast.LENGTH_SHORT).show();
+                finish();
             }
         }
     }
