@@ -255,10 +255,6 @@ public class Lobby extends AppCompatActivity {
                                 // haha jk theres no other players its hard coded for 2 players
                                 Log.d("Lobby", "Client left game");
                                 break;
-                            // RESTEST CODE
-                            case BUFFER_START_GAME:
-                                // get game info and start intent for game
-                                Log.d("Lobby", "Host started game");
                             default:
                                 Log.d("Lobby", "Invalid buffer[0] value for host read");
                                 break;

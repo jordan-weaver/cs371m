@@ -29,13 +29,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void InitVars() {
         username = (EditText) findViewById(R.id.username_edittext);
+        String user = username.getText().toString();
+        if (user.length() > 6) {
+            user = user.substring(0, 6);
+        }
 
         Button hostGameButton = (Button) findViewById(R.id.host_game_button);
+        final String finalUser = user;
         hostGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), Lobby.class);
-                intent.putExtra("user", username.getText().toString());
+                intent.putExtra("user", finalUser);
                 intent.putExtra("isHost", true);
                 startActivity(intent);
             }
