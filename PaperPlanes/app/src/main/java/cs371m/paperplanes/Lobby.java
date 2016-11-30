@@ -88,8 +88,9 @@ public class Lobby extends AppCompatActivity {
             playerList.add(1, "Waiting for Player0");
 
             // Set the lobby name
+            String[] token = username.split(" ");
             TextView gameName = (TextView) findViewById(R.id.gameName);
-            gameName.setText(username + "'s Game");
+            gameName.setText(token[1] + "'s Game");
 
             deviceName = mBluetoothAdapter.getName();
             mBluetoothAdapter.setName(username);
@@ -141,8 +142,8 @@ public class Lobby extends AppCompatActivity {
                         String name = (String) m.obj;
                         TextView gameName = (TextView) findViewById(R.id.gameName);
                         gameName.setText(name + "'s Game");
-                        playerList.add(0, name);
-                        playerList.add(1, username);
+                        playerList.add(0, name.split(" ")[1]);
+                        playerList.add(1, username.split(" ")[1]);
                     }
                 }
             }
@@ -179,21 +180,21 @@ public class Lobby extends AppCompatActivity {
                 byte[] byteArray = new byte[1];
                 byteArray[0] = BUFFER_START_GAME;
                 dtThread.write(byteArray);
-                Intent intent = new Intent(getApplicationContext(), GameState.class);
-                intent.putExtra("isHost", true);
-                startActivity(intent);
                 */
                 // Send client start the game
                 DataTransferThread dtThread = new DataTransferThread();
                 dtThread.start();
                 int nameLength = getResources().getInteger(R.integer.USERNAME_LENGTH);
-                byte[] byteArray = new byte[nameLength + 2];
+                byte[] byteArray = new byte[nameLength + 6];
                 byteArray[0] = BUFFER_START_GAME;
                 byte[] byteName = (byte []) "".getBytes();
                 for (int i = 0; i < byteName.length; i++) {
                     byteArray[i+1] = byteName[i];
                 }
                 dtThread.write(byteArray);
+                Intent intent = new Intent(getApplicationContext(), GameState.class);
+                intent.putExtra("isHost", true);
+                startActivity(intent);
             }
         });
         // If Cancel is pressed, check to see if host.
@@ -233,9 +234,10 @@ public class Lobby extends AppCompatActivity {
         public void run() {
             byte[] buffer = new byte[1024];  // buffer store for the stream
             int bytes; // bytes returned from read()
+            boolean gameStarted = false;
 
             // Keep listening to the InputStream until an exception occurs
-            while (true) {
+            while (!gameStarted) {
                 try {
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);
@@ -270,6 +272,7 @@ public class Lobby extends AppCompatActivity {
                             case BUFFER_START_GAME:
                                 // get game info and start intent for game
                                 Log.d("Lobby", "Host started game");
+                                gameStarted = true;
                                 Intent intent = new Intent(getApplicationContext(), GameState.class);
                                 intent.putExtra("isHost", false);
                                 startActivity(intent);
@@ -350,7 +353,7 @@ public class Lobby extends AppCompatActivity {
                     dtThread = new DataTransferThread();
                     dtThread.start();
                     int nameLength = getResources().getInteger(R.integer.USERNAME_LENGTH);
-                    byte[] byteArray = new byte[nameLength + 2];
+                    byte[] byteArray = new byte[nameLength + 6];
                     byteArray[0] = BUFFER_PLAYER_LIST;
                     byte[] byteName = (byte []) username.getBytes();
                     for (int i = 0; i < byteName.length; i++) {

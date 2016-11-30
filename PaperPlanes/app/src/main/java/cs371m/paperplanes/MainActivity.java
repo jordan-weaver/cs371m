@@ -2,8 +2,10 @@ package cs371m.paperplanes;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.support.annotation.IntegerRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -15,6 +17,7 @@ import java.nio.BufferUnderflowException;
 public class MainActivity extends AppCompatActivity {
 
     public EditText username;
+    public int usernameLen;
     private final static int REQUEST_ENABLE_BT = 888;
 
     @Override
@@ -28,18 +31,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void InitVars() {
         username = (EditText) findViewById(R.id.username_edittext);
-        String user = username.getText().toString();
-        if (user.length() > 6) {
-            user = user.substring(0, 6);
-        }
+        usernameLen = getResources().getInteger(R.integer.USERNAME_LENGTH);
 
         Button hostGameButton = (Button) findViewById(R.id.host_game_button);
-        final String finalUser = user;
         hostGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), Lobby.class);
-                intent.putExtra("user", finalUser);
+                String user = username.getText().toString();
+                if (user.length() > usernameLen) {
+                    user = user.substring(0, usernameLen);
+                }
+                intent.putExtra("user", getString(R.string.usernameTag) + " " + user);
                 intent.putExtra("isHost", true);
                 startActivity(intent);
             }
@@ -50,7 +53,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), JoinGameActivity.class);
-                intent.putExtra("user", username.getText().toString());
+                String user = username.getText().toString();
+                if (user.length() > usernameLen) {
+                    user = user.substring(0, usernameLen);
+                }
+                intent.putExtra("user", getString(R.string.usernameTag) + " " + user);
                 startActivity(intent);
             }
         });
