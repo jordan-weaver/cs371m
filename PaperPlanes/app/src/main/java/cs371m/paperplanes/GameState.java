@@ -136,6 +136,11 @@ public class GameState extends AppCompatActivity {
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
+            try {
+                mmInStream.reset();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             time = (int) System.currentTimeMillis();
             LeagueMinion minion = new LeagueMinion(
@@ -147,19 +152,30 @@ public class GameState extends AppCompatActivity {
                     new Point(60, height / 2),
                     new Point(0, -100), LeagueMinionType.Circle, Color.RED
             );
-
-
             minions.add(minion2);
+            LeagueMinion minion3 = new LeagueMinion(
+                    new Point(0, 0),
+                    new Point(0, 0), LeagueMinionType.Line, Color.BLUE
+            );
+            minions.add(minion3);
+            LeagueMinion minion4 = new LeagueMinion(
+                    new Point(0, 0),
+                    new Point(0, 0), LeagueMinionType.Line, Color.RED
+            );
+            minions.add(minion4);
         }
 
         public void run() {
             byte[] buffer = new byte[1024];  // buffer store for the stream
             int bytes; // bytes returned from read()
 
+            // Render time stuff
+            long blueLaser = 0l;
+            long redLaser = 0l;
+
             try {
                 if (mmInStream.available() > 0) {
-                    bytes = mmInStream.read(buffer);
-                    buffer[bytes] = '\0';
+                    mmInStream.reset();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -167,43 +183,44 @@ public class GameState extends AppCompatActivity {
 
             // Keep listening to the InputStream until an exception occurs
             while (gameover != 2) {
-                SystemClock.sleep(97);
+                SystemClock.sleep(37);
                 try {
                     // Read from the InputStream
                     bytes = 0;
                     if (mmInStream.available() > 0) {
                         bytes = mmInStream.read(buffer);
                     }
+
                     switch(playerNumber) {
                         case 1:
-                            if(bytes > 0) {
-                                // handle player input
-                                Log.d("GameThread", "Client Input");
-                            }
                             int newTime = (int) System.currentTimeMillis();
                             deltaTime = (int)((newTime - time) * 0.33);
                             time = newTime;
 
-                            // Read client inputs
-                            String s = new String(buffer, StandardCharsets.UTF_8);
-                            Log.d("HOST READING", s);
-                            if (!TextUtils.isGraphic(s.substring(0,3))) {
-                                buffer[bytes] = '\0';
-                                bytes = 0;
-                            }
-                            else {
-                                String[] clientIn = s.split("\\|");
+                            String s;
+                            if(bytes > 0) {
+                                // Read client inputs
+                                s = new String(buffer, StandardCharsets.UTF_8);
+                                Log.d("HOST READING", s);
 
-                                // Parse
-                                minions.get(1).direction.x = Integer.parseInt(clientIn[0]);
-                                minions.get(1).direction.y = Integer.parseInt(clientIn[1]);
-                                if (Integer.parseInt(clientIn[2]) == 1) {
-                                    playerShoot = true;
+                                if (!TextUtils.isGraphic(s.substring(0, 3))) {
+                                    buffer[bytes] = '\0';
+                                } else {
+                                    String[] clientIn = s.split("\\|");
+
+                                    // Parse
+                                    minions.get(1).direction.x = Integer.parseInt(clientIn[0]);
+                                    minions.get(1).direction.y = Integer.parseInt(clientIn[1]);
+                                    if (Integer.parseInt(clientIn[2]) == 1) {
+                                        playerShoot = true;
+                                    }
                                 }
                             }
 
-                            // Run game loop
-                            for (int i = 0; i < minions.size(); ++i) {
+                            // Run move/shoot loop
+                            for (int i = 0; i < 4; ++i) {
+
+
                                 if (minions.get(i).position.x > width ||
                                         minions.get(i).position.x < 0) {
                                     minions.get(i).position.x = Math.abs(minions.get(i).position.x -
@@ -217,6 +234,7 @@ public class GameState extends AppCompatActivity {
 
                                 minions.get(i).move(deltaTime);
                             }
+                            int hit = checkHits();
                             // Write to clients
                             /*
                                 My Format, delineated by |:
@@ -247,6 +265,7 @@ public class GameState extends AppCompatActivity {
                             write(writableOut);
 
                             // Draw
+                            fireGuns(blueLaser, redLaser);
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -268,6 +287,11 @@ public class GameState extends AppCompatActivity {
                             minions.get(1).position.x = Integer.parseInt(tokens[4]);
                             minions.get(1).position.y = Integer.parseInt(tokens[5]);
                             gameover = Integer.parseInt(tokens[6]);
+                            if (Integer.parseInt(tokens[7]) == 1)
+                                hostShoot = true;
+                            if (Integer.parseInt(tokens[8]) == 1)
+                                playerShoot = true;
+                            fireGuns(blueLaser, redLaser);
 
                             // Send to Host like this:
                             // 1. Direction Vector
@@ -323,7 +347,7 @@ public class GameState extends AppCompatActivity {
     public boolean clickEvent(int button) {
         // Double press (less than 200ms apart)
 
-        if (Math.abs(button1Press - button2Press) < 200) {
+        if (Math.abs(button1Press - button2Press) < 75) {
             if (isHost) {
                 hostShoot = true;
             }
@@ -340,22 +364,116 @@ public class GameState extends AppCompatActivity {
 
         // Bank left
         if (button == 1) {
-            minions.get(i).direction.x = (int) (x * Math.cos(Math.toRadians(3.0))
-                    - y * Math.sin(Math.toRadians(3.0)));
-            minions.get(i).direction.y = (int) (y * Math.cos(Math.toRadians(3.0))
-                    + x * Math.sin(Math.toRadians(3.0)));
-            button1Press = SystemClock.elapsedRealtime();
-        }
-        // Bank right
-        if (button == 2) {
             minions.get(i).direction.x = (int) (x * Math.cos(Math.toRadians(-3.0))
                     - y * Math.sin(Math.toRadians(-3.0)));
             minions.get(i).direction.y = (int) (y * Math.cos(Math.toRadians(-3.0))
                     + x * Math.sin(Math.toRadians(-3.0)));
             button2Press = SystemClock.elapsedRealtime();
         }
+        // Bank right
+        if (button == 2) {
+            minions.get(i).direction.x = (int) (x * Math.cos(Math.toRadians(3.0))
+                    - y * Math.sin(Math.toRadians(3.0)));
+            minions.get(i).direction.y = (int) (y * Math.cos(Math.toRadians(3.0))
+                    + x * Math.sin(Math.toRadians(3.0)));
+            button1Press = SystemClock.elapsedRealtime();
+        }
 
+        int oldx = minions.get(i).direction.x;
+        int oldy = minions.get(i).direction.y;
+        double dist = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
+        if (dist < 100.0) {
+            double frac = 100.0 / dist;
+            minions.get(i).direction.x = (int)(oldx * frac) + 1;
+            minions.get(i).direction.y = (int)(oldy * frac) + 1;
+        }
         return true;
     }
 
+    public void fireGuns(long blue, long red) {
+        if (hostShoot) {
+            minions.get(2).position.x = minions.get(0).position.x;
+            minions.get(2).position.y = minions.get(0).position.y;
+            minions.get(2).direction.x = minions.get(0).direction.x;
+            minions.get(2).direction.y = minions.get(0).direction.y;
+            blue = SystemClock.elapsedRealtime();
+            hostShoot = false;
+        }
+        else if (SystemClock.elapsedRealtime() - blue > 50){
+            minions.get(2).position.x = 0;
+            minions.get(2).position.y = 0;
+            minions.get(2).direction.x =0;
+            minions.get(2).direction.y =0;
+        }
+        if (playerShoot) {
+            minions.get(3).position.x = minions.get(1).position.x;
+            minions.get(3).position.y = minions.get(1).position.y;
+            minions.get(3).direction.x = minions.get(1).direction.x;
+            minions.get(3).direction.y = minions.get(1).direction.y;
+            red = SystemClock.elapsedRealtime();
+            playerShoot = false;
+        }
+        else if (SystemClock.elapsedRealtime() - red > 50){
+            minions.get(3).position.x = 0;
+            minions.get(3).position.y = 0;
+            minions.get(3).direction.x = 0;
+            minions.get(3).direction.y = 0;
+        }
+    }
+
+    // 0 if none, 1 if host is hit, 2 if player is hit, 3 if tie
+    public int checkHits() {
+        // host shot x, host shot y, etc.
+        int hsx = minions.get(2).position.x;
+        int hsy = minions.get(2).position.y;
+        int csx = minions.get(3).position.x;
+        int csy = minions.get(3).position.y;
+
+        boolean hostWin = false;
+        boolean clientWin = false;
+        // Shots only valid if not near origin
+        if (hsx > 10 || hsy > 10) {
+            int clientx = minions.get(1).position.x;
+            int clienty = minions.get(1).position.y;
+            double slope = (minions.get(2).position.y - minions.get(2).direction.y * height) /
+                    (minions.get(2).position.x - minions.get(2).direction.x * width);
+            double yint = (hsy - slope * hsx);
+            double a = slope;
+            int b = -1;
+            double c = yint;
+
+            double dist = (Math.abs(a * clientx + b * clienty + c)) /
+                    (Math.sqrt(Math.pow(a,2) + Math.pow(b,2)));
+
+            if (dist < 60) {
+                hostWin = true;
+            }
+        }
+        if (csx > 10 || csy > 10) {
+            int hostx = minions.get(0).position.x;
+            int hosty = minions.get(0).position.y;
+            double slope = (minions.get(3).position.y - minions.get(3).direction.y * height) /
+                    (minions.get(3).position.x - minions.get(3).direction.x * width);
+            double yint = (csy - slope * csx);
+            double a = slope;
+            int b = -1;
+            double c = yint;
+
+            double dist = (Math.abs(a * hostx + b * hosty + c)) /
+                    (Math.sqrt(Math.pow(a,2) + Math.pow(b,2)));
+
+            if (dist < 60) {
+                clientWin = true;
+            }
+        }
+
+        if (hostWin && clientWin)
+            return 3;
+        if (hostWin)
+            return 1;
+        if (clientWin)
+            return 2;
+        else
+            return 0;
+    }
 }

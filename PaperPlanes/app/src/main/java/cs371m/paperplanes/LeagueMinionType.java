@@ -5,5 +5,5 @@ package cs371m.paperplanes;
  */
 
 public enum LeagueMinionType {
-    Circle, Square
+    Circle, Square, Line
 };

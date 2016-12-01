@@ -153,6 +153,7 @@ public class JoinGameActivity extends AppCompatActivity {
             intent.putExtra("user", username);
             intent.putExtra("isHost", false);
             startActivity(intent);
+            finish();
         }
 
         /** Will cancel an in-progress connection, and close the socket */

@@ -70,6 +70,7 @@ public class Lobby extends AppCompatActivity {
     private final int REQUEST_CODE_DISCOVERABLE = 1;
 
     private final int HANDLER_PLAYER_LIST   = 0;
+    private final int HANDLER_CANCELED      = 1;
 
     private final int BUFFER_START_GAME     = 0;
     private final int BUFFER_CANCEL_LOBBY   = 1;
@@ -77,6 +78,7 @@ public class Lobby extends AppCompatActivity {
     private final int BUFFER_JOIN_GAME      = 3;
     private final int BUFFER_LEAVE_GAME     = 4;
 
+    boolean gameStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +88,7 @@ public class Lobby extends AppCompatActivity {
         InitVars();
 
         if (isHost) {
-            playerList.add(0, username);
+            playerList.add(0, username.split(" ")[1]);
             playerList.add(1, "Waiting for Player0");
 
             // Set the lobby name
@@ -138,16 +140,19 @@ public class Lobby extends AppCompatActivity {
                         Log.d("handlemessage", "host");
                         String name = (String) m.obj;
 
-                        playerList.set(1, name);
+                        playerList.set(1, name.split(" ")[1]);
                         arrayAdapter.notifyDataSetChanged();
                     } else {
                         Log.d("handlemessage", "client");
                         String name = (String) m.obj;
                         TextView gameName = (TextView) findViewById(R.id.gameName);
-                        gameName.setText(name + "'s Game");
+                        gameName.setText(name.split(" ")[1] + "'s Game");
                         playerList.add(0, name.split(" ")[1]);
                         playerList.add(1, username.split(" ")[1]);
                     }
+                }
+                else if (m.what == HANDLER_CANCELED) {
+                    finish();
                 }
             }
         };
@@ -195,11 +200,13 @@ public class Lobby extends AppCompatActivity {
                     byteArray[i+1] = byteName[i];
                 }
                 dtThread.write(byteArray);
+
+                gameStarted = true;
+
                 Toast.makeText(context, "Starting game!", Toast.LENGTH_SHORT).show();
                 SystemClock.sleep(2000);
                 Intent intent = new Intent(getApplicationContext(), GameState.class);
                 intent.putExtra("isHost", true);
-
                 startActivity(intent);
             }
         });
@@ -210,6 +217,11 @@ public class Lobby extends AppCompatActivity {
             public void onClick(View view) {
                 if(isHost) {
                     mBluetoothAdapter.setName(deviceName);
+                    String s = BUFFER_CANCEL_LOBBY + "";
+                    byte[] out = s.getBytes();
+                    DataTransferThread dtThread = new DataTransferThread();
+                    dtThread.start();
+                    dtThread.write(out);
                 }
                 finish();
             }
@@ -240,7 +252,6 @@ public class Lobby extends AppCompatActivity {
         public void run() {
             byte[] buffer = new byte[1024];  // buffer store for the stream
             int bytes; // bytes returned from read()
-            boolean gameStarted = false;
 
             // Keep listening to the InputStream until an exception occurs
             while (!gameStarted) {
@@ -296,6 +307,8 @@ public class Lobby extends AppCompatActivity {
                                 // quit out of activity
                                 // go to main or join? probably main
                                 Log.d("Lobby", "Host canceled lobby");
+                                mHandler.obtainMessage(HANDLER_CANCELED, " ").sendToTarget();
+                                gameStarted = true;
                                 break;
                             case BUFFER_PLAYER_LIST:
                                 //read player list
@@ -308,6 +321,8 @@ public class Lobby extends AppCompatActivity {
                                 break;
                             default:
                                 Log.d("Lobby", "Invalid buffer[0] value for client read");
+                                Log.d("Lobby", "Client read " + new String(buffer,
+                                        StandardCharsets.UTF_8));
                                 break;
                         }
                     }
@@ -391,6 +406,10 @@ public class Lobby extends AppCompatActivity {
                 mmServerSocket.close();
             } catch (IOException e) { }
         }
+    }
+
+    private void canceledGame() {
+        finish();
     }
 }
 
