@@ -23,7 +23,8 @@
             </elements>
         </activity>
         <activity android:name="GameState"
-            android:theme="@style/NoActionBar" >
+            android:theme="@style/NoActionBar"
+            android:screenOrientation="portrait">
             <elements
                 android:screenOrientation="portrait" >
             </elements>
