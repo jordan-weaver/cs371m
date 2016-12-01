@@ -69,10 +69,10 @@ public class Lobby extends AppCompatActivity {
 
     private final int REQUEST_CODE_DISCOVERABLE = 1;
 
-    private final int HANDLER_PLAYER_LIST = 0;
+    private final int HANDLER_PLAYER_LIST   = 0;
 
     private final int BUFFER_START_GAME     = 0;
-    private final int BUFFER_CANCEL_LOBBY    = 1;
+    private final int BUFFER_CANCEL_LOBBY   = 1;
     private final int BUFFER_PLAYER_LIST    = 2;
     private final int BUFFER_JOIN_GAME      = 3;
     private final int BUFFER_LEAVE_GAME     = 4;
@@ -199,6 +199,7 @@ public class Lobby extends AppCompatActivity {
                 SystemClock.sleep(2000);
                 Intent intent = new Intent(getApplicationContext(), GameState.class);
                 intent.putExtra("isHost", true);
+
                 startActivity(intent);
             }
         });

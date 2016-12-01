@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.IntegerRes;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -146,6 +147,8 @@ public class GameState extends AppCompatActivity {
                     new Point(60, height / 2),
                     new Point(0, -100), LeagueMinionType.Circle, Color.RED
             );
+
+
             minions.add(minion2);
         }
 
@@ -153,9 +156,18 @@ public class GameState extends AppCompatActivity {
             byte[] buffer = new byte[1024];  // buffer store for the stream
             int bytes; // bytes returned from read()
 
+            try {
+                if (mmInStream.available() > 0) {
+                    bytes = mmInStream.read(buffer);
+                    buffer[bytes] = '\0';
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             // Keep listening to the InputStream until an exception occurs
             while (gameover != 2) {
-                SystemClock.sleep(17);
+                SystemClock.sleep(97);
                 try {
                     // Read from the InputStream
                     bytes = 0;
@@ -173,18 +185,32 @@ public class GameState extends AppCompatActivity {
                             time = newTime;
 
                             // Read client inputs
+                            String s = new String(buffer, StandardCharsets.UTF_8);
+                            Log.d("HOST READING", s);
+                            if (!TextUtils.isGraphic(s.substring(0,3))) {
+                                buffer[bytes] = '\0';
+                                bytes = 0;
+                            }
+                            else {
+                                String[] clientIn = s.split("\\|");
 
-                            // Update client info
+                                // Parse
+                                minions.get(1).direction.x = Integer.parseInt(clientIn[0]);
+                                minions.get(1).direction.y = Integer.parseInt(clientIn[1]);
+                                if (Integer.parseInt(clientIn[2]) == 1) {
+                                    playerShoot = true;
+                                }
+                            }
 
                             // Run game loop
-                            for(int i = 0; i < minions.size(); ++i) {
+                            for (int i = 0; i < minions.size(); ++i) {
                                 if (minions.get(i).position.x > width ||
-                                    minions.get(i).position.x < 0) {
+                                        minions.get(i).position.x < 0) {
                                     minions.get(i).position.x = Math.abs(minions.get(i).position.x -
                                             width + 3);
                                 }
                                 if (minions.get(i).position.y > height ||
-                                    minions.get(i).position.y < 0) {
+                                        minions.get(i).position.y < 0) {
                                     minions.get(i).position.y = Math.abs(minions.get(i).position.y -
                                             height + 3);
                                 }
@@ -207,15 +233,13 @@ public class GameState extends AppCompatActivity {
                             if (hostShoot) {
                                 output = output + "1|";
                                 hostShoot = false;
-                            }
-                            else {
+                            } else {
                                 output = output + "0|";
                             }
                             if (playerShoot) {
                                 output = output + "1|";
                                 playerShoot = false;
-                            }
-                            else {
+                            } else {
                                 output = output + "0|";
                             }
                             byte[] writableOut = output.getBytes();
@@ -232,10 +256,7 @@ public class GameState extends AppCompatActivity {
                             break;
                         case 2:
                             // Read in the stufffffffff
-                            byte[] newBuffer = new byte[1023];
-                            for(int i = 0; i < 1023; ++i)
-                                newBuffer[i] = buffer[i + 1];
-                            String s = new String(newBuffer, StandardCharsets.UTF_8);
+                            s = new String(buffer, StandardCharsets.UTF_8);
 
                             // Parse the stufffffffff
                             Log.d("STRING", s);
@@ -247,6 +268,21 @@ public class GameState extends AppCompatActivity {
                             minions.get(1).position.x = Integer.parseInt(tokens[4]);
                             minions.get(1).position.y = Integer.parseInt(tokens[5]);
                             gameover = Integer.parseInt(tokens[6]);
+
+                            // Send to Host like this:
+                            // 1. Direction Vector
+                            // 2. Shooting?
+                            s = minions.get(1).direction.x + "|" + minions.get(1).direction.y
+                                    + "|";
+                            if (playerShoot) {
+                                s = s + "1|";
+                            }
+                            else {
+                                s = s + "0|";
+                            }
+                            byte[] writable = s.getBytes();
+                            write(writable);
+                            playerShoot = false;
 
                             // Draw the stufffffffff
                             runOnUiThread(new Runnable() {
@@ -261,13 +297,9 @@ public class GameState extends AppCompatActivity {
                             Log.d("GameState", "Error, invalid player number");
                             break;
                     }
-                    sleep(20);
                 } catch (IOException e) {
                     Log.d("IOExcept","IOException");
                     break;
-                } catch (InterruptedException e) {
-                    Log.d("Exception", "interrupt on sleep");
-                    e.printStackTrace();
                 }
             }
         }

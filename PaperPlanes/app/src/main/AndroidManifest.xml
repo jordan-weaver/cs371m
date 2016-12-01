@@ -18,11 +18,20 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <elements
+                android:screenOrientation="portrait" >
+            </elements>
         </activity>
         <activity android:name="GameState"
             android:theme="@style/NoActionBar" >
+            <elements
+                android:screenOrientation="portrait" >
+            </elements>
         </activity>
         <activity android:name="Lobby"> </activity>
+        <elements
+            android:screenOrientation="portrait" >
+        </elements>
         <activity android:name=".JoinGameActivity"> </activity>
     </application>
 
