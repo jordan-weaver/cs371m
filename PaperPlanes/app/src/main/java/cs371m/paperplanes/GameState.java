@@ -235,6 +235,9 @@ public class GameState extends AppCompatActivity {
                                 minions.get(i).move(deltaTime);
                             }
                             int hit = checkHits();
+                            if (hit != 0) {
+                                Log.d("GAME OVER", "THE GAME HAS ENDED");
+                            }
                             // Write to clients
                             /*
                                 My Format, delineated by |:
@@ -260,12 +263,17 @@ public class GameState extends AppCompatActivity {
                             } else {
                                 output = output + "0|";
                             }
+                            // Fuck.  I need to send the host's direction vector
+                            output = output + minions.get(0).direction.x + "|"
+                                    + minions.get(0).direction.y + "|";
+
                             byte[] writableOut = output.getBytes();
                             Log.d("output", output);
                             write(writableOut);
 
                             // Draw
-                            fireGuns(blueLaser, redLaser);
+                            blueLaser = fireGuns(blueLaser);
+                            redLaser = fireGunsc(redLaser);
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -286,12 +294,15 @@ public class GameState extends AppCompatActivity {
                             minions.get(0).position.y = Integer.parseInt(tokens[3]);
                             minions.get(1).position.x = Integer.parseInt(tokens[4]);
                             minions.get(1).position.y = Integer.parseInt(tokens[5]);
+                            minions.get(0).direction.x = Integer.parseInt(tokens[9]);
+                            minions.get(0).direction.y = Integer.parseInt(tokens[10]);
                             gameover = Integer.parseInt(tokens[6]);
                             if (Integer.parseInt(tokens[7]) == 1)
                                 hostShoot = true;
                             if (Integer.parseInt(tokens[8]) == 1)
                                 playerShoot = true;
-                            fireGuns(blueLaser, redLaser);
+                            blueLaser = fireGuns(blueLaser);
+                            redLaser = fireGunsc(redLaser);
 
                             // Send to Host like this:
                             // 1. Direction Vector
@@ -390,35 +401,39 @@ public class GameState extends AppCompatActivity {
         return true;
     }
 
-    public void fireGuns(long blue, long red) {
+    public long fireGuns(long blue) {
         if (hostShoot) {
             minions.get(2).position.x = minions.get(0).position.x;
             minions.get(2).position.y = minions.get(0).position.y;
             minions.get(2).direction.x = minions.get(0).direction.x;
             minions.get(2).direction.y = minions.get(0).direction.y;
-            blue = SystemClock.elapsedRealtime();
             hostShoot = false;
+            return SystemClock.elapsedRealtime();
         }
-        else if (SystemClock.elapsedRealtime() - blue > 50){
+        if (SystemClock.elapsedRealtime() - blue > 50) {
             minions.get(2).position.x = 0;
             minions.get(2).position.y = 0;
-            minions.get(2).direction.x =0;
-            minions.get(2).direction.y =0;
+            minions.get(2).direction.x = 0;
+            minions.get(2).direction.y = 0;
         }
+        return blue;
+    }
+    public long fireGunsc(long red) {
         if (playerShoot) {
             minions.get(3).position.x = minions.get(1).position.x;
             minions.get(3).position.y = minions.get(1).position.y;
             minions.get(3).direction.x = minions.get(1).direction.x;
             minions.get(3).direction.y = minions.get(1).direction.y;
-            red = SystemClock.elapsedRealtime();
             playerShoot = false;
+            return SystemClock.elapsedRealtime();
         }
-        else if (SystemClock.elapsedRealtime() - red > 50){
+        if (SystemClock.elapsedRealtime() - red > 50){
             minions.get(3).position.x = 0;
             minions.get(3).position.y = 0;
             minions.get(3).direction.x = 0;
             minions.get(3).direction.y = 0;
         }
+        return red;
     }
 
     // 0 if none, 1 if host is hit, 2 if player is hit, 3 if tie
