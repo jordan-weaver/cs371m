@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:textSize="18dp"
         android:text="STARTING A GAME \n
-        Enter a name (8 characters max, no spaces).  You can then host or join a game.\n
+        Enter a name (8 characters max, no spaces).  You can then host or join a game.  The host is Player 1 (Blue) and the one that joing is Player 2 (Red).\n
 
         "/>
     <TextView

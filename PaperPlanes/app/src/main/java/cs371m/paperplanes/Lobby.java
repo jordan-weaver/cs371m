@@ -89,6 +89,7 @@ public class Lobby extends AppCompatActivity {
         InitVars();
 
         if (isHost) {
+            Toast.makeText(this, "You are Player 1 (Blue).", Toast.LENGTH_SHORT).show();
             playerList.add(0, username.split(" ")[1]);
             playerList.add(1, "Waiting for Player 2");
 
@@ -108,6 +109,7 @@ public class Lobby extends AppCompatActivity {
         }
         else {
             // Send Host our name
+            Toast.makeText(this, "You are Player 2 (Red).", Toast.LENGTH_SHORT).show();
             dtThread = new DataTransferThread();
             dtThread.start();
             int nameLength = getResources().getInteger(R.integer.USERNAME_LENGTH);
