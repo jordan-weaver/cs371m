@@ -122,8 +122,8 @@ public class EndGame extends AppCompatActivity {
             public void handleMessage(Message m) {
                 if (m.what == HANDLER_QUIT) {
                     Toast.makeText(context, "Other player has left!", Toast.LENGTH_SHORT).show();
-                    dtThread.resetConnection();
                     Intent intent = new Intent(context, MainActivity.class);
+                    dtThread.resetConnection();
                     startActivity(intent);
                 }
                 else if (m.what == HANDLER_RESTART) {
@@ -193,6 +193,13 @@ public class EndGame extends AppCompatActivity {
                             case BUFFER_START_GAME:
                                 // get game info and start intent for game
                                 Log.d("Lobby", "Host started game");
+                                // Clear stuff
+                                bytes = mmInStream.read(buffer);
+                                buffer[bytes] = '\0';
+                                if (mmInStream.available() > 0) {
+                                    mmInStream.read();
+                                }
+
                                 mHandler.obtainMessage(HANDLER_RESTART, " ").sendToTarget();
                                 gameStarted = true;
                                 break;
@@ -242,6 +249,23 @@ public class EndGame extends AppCompatActivity {
                 try {mmSocket.close();} catch (Exception e) {}
             }
 
+        }
+        public void softRest() {
+            if (mmInStream != null) {
+                try {
+                    mmInStream.close();
+                } catch (Exception e) {
+                    Log.d("Exception1", "mminstream exception");
+                }
+            }
+
+            if (mmOutStream != null) {
+                try {
+                    mmOutStream.close();
+                } catch (Exception e) {
+                    Log.d("Exception2", "mmoutstream exception");
+                }
+            }
         }
     }
 

@@ -136,11 +136,6 @@ public class GameState extends AppCompatActivity {
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
-            try {
-                mmInStream.reset();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
             time = (int) System.currentTimeMillis();
             LeagueMinion minion = new LeagueMinion(
@@ -172,14 +167,6 @@ public class GameState extends AppCompatActivity {
             // Render time stuff
             long blueLaser = 0l;
             long redLaser = 0l;
-
-            try {
-                if (mmInStream.available() > 0) {
-                    mmInStream.reset();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
             // Keep listening to the InputStream until an exception occurs
             while (gameover == 0) {
@@ -285,48 +272,52 @@ public class GameState extends AppCompatActivity {
                             // Read in the stufffffffff
                             s = new String(buffer, StandardCharsets.UTF_8);
 
-                            // Parse the stufffffffff
-                            Log.d("STRING", s);
-                            String[] tokens = s.split("\\|");
-                            int hostWidth = Integer.parseInt(tokens[0]);
-                            int hostHeight = Integer.parseInt(tokens[1]);
-                            minions.get(0).position.x = Integer.parseInt(tokens[2]);
-                            minions.get(0).position.y = Integer.parseInt(tokens[3]);
-                            minions.get(1).position.x = Integer.parseInt(tokens[4]);
-                            minions.get(1).position.y = Integer.parseInt(tokens[5]);
-                            minions.get(0).direction.x = Integer.parseInt(tokens[9]);
-                            minions.get(0).direction.y = Integer.parseInt(tokens[10]);
-                            gameover = Integer.parseInt(tokens[6]);
-                            if (Integer.parseInt(tokens[7]) == 1)
-                                hostShoot = true;
+                            if (!TextUtils.isGraphic(s.substring(0, 3))) {
+                                buffer[bytes] = '\0';
+                            } else {
 
-                            if (gameover != 0) {
-                                // DO stuff
-                                endGame(gameover);
-                            }
-                            // Send to Host like this:
-                            // 1. Direction Vector
-                            // 2. Shooting?
-                            s = minions.get(1).direction.x + "|" + minions.get(1).direction.y
-                                    + "|";
-                            if (playerShoot) {
-                                s = s + "1|";
-                            }
-                            else {
-                                s = s + "0|";
-                            }
-                            byte[] writable = s.getBytes();
-                            write(writable);
+                                // Parse the stufffffffff
+                                Log.d("STRING", s);
+                                String[] tokens = s.split("\\|");
+                                int hostWidth = Integer.parseInt(tokens[0]);
+                                int hostHeight = Integer.parseInt(tokens[1]);
+                                minions.get(0).position.x = Integer.parseInt(tokens[2]);
+                                minions.get(0).position.y = Integer.parseInt(tokens[3]);
+                                minions.get(1).position.x = Integer.parseInt(tokens[4]);
+                                minions.get(1).position.y = Integer.parseInt(tokens[5]);
+                                minions.get(0).direction.x = Integer.parseInt(tokens[9]);
+                                minions.get(0).direction.y = Integer.parseInt(tokens[10]);
+                                gameover = Integer.parseInt(tokens[6]);
+                                if (Integer.parseInt(tokens[7]) == 1)
+                                    hostShoot = true;
 
-                            // Draw the stufffffffff
-                            blueLaser = fireGuns(blueLaser);
-                            redLaser = fireGunsc(redLaser);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    gameView.invalidate();
+                                if (gameover != 0) {
+                                    // DO stuff
+                                    endGame(gameover);
                                 }
-                            });
+                                // Send to Host like this:
+                                // 1. Direction Vector
+                                // 2. Shooting?
+                                s = minions.get(1).direction.x + "|" + minions.get(1).direction.y
+                                        + "|";
+                                if (playerShoot) {
+                                    s = s + "1|";
+                                } else {
+                                    s = s + "0|";
+                                }
+                                byte[] writable = s.getBytes();
+                                write(writable);
+
+                                // Draw the stufffffffff
+                                blueLaser = fireGuns(blueLaser);
+                                redLaser = fireGunsc(redLaser);
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        gameView.invalidate();
+                                    }
+                                });
+                            }
 
                             break;
                         default:

@@ -71,6 +71,7 @@ public class Lobby extends AppCompatActivity {
 
     private final int HANDLER_PLAYER_LIST   = 0;
     private final int HANDLER_CANCELED      = 1;
+    private final int HANDLER_GAME_START    = 2;
 
     private final int BUFFER_START_GAME     = 0;
     private final int BUFFER_CANCEL_LOBBY   = 1;
@@ -132,6 +133,8 @@ public class Lobby extends AppCompatActivity {
 
     protected void InitVars() {
         context = this;
+        final Button startGame = (Button) findViewById(R.id.startGame);
+        startGame.setEnabled(false);
         mHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message m) {
@@ -139,7 +142,7 @@ public class Lobby extends AppCompatActivity {
                     if (isHost) {
                         Log.d("handlemessage", "host");
                         String name = (String) m.obj;
-
+                        startGame.setEnabled(true);
                         playerList.set(1, name.split(" ")[1]);
                         arrayAdapter.notifyDataSetChanged();
                     } else {
@@ -153,6 +156,9 @@ public class Lobby extends AppCompatActivity {
                 }
                 else if (m.what == HANDLER_CANCELED) {
                     finish();
+                }
+                else if (m.what == HANDLER_GAME_START) {
+                    Toast.makeText(context, "Game is starting!", Toast.LENGTH_SHORT).show();
                 }
             }
         };
@@ -174,22 +180,11 @@ public class Lobby extends AppCompatActivity {
                 playerList);
         gameList.setAdapter(arrayAdapter);
         // If start is pressed, start the game with X players
-        Button startGame = (Button) findViewById(R.id.startGame);
-        if (!isHost) {
-            startGame.setEnabled(false);
-        }
         startGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Check number of players
-                // Start the game
-                /*
-                mBluetoothAdapter.setName(deviceName);
-                byte[] byteArray = new byte[1];
-                byteArray[0] = BUFFER_START_GAME;
-                dtThread.write(byteArray);
-                */
                 // Send client start the game
+                Toast.makeText(context, "Starting game!", Toast.LENGTH_SHORT).show();
                 DataTransferThread dtThread = new DataTransferThread();
                 dtThread.start();
                 int nameLength = getResources().getInteger(R.integer.USERNAME_LENGTH);
@@ -203,7 +198,6 @@ public class Lobby extends AppCompatActivity {
 
                 gameStarted = true;
 
-                Toast.makeText(context, "Starting game!", Toast.LENGTH_SHORT).show();
                 SystemClock.sleep(2000);
                 Intent intent = new Intent(getApplicationContext(), GameState.class);
                 intent.putExtra("isHost", true);
@@ -288,11 +282,11 @@ public class Lobby extends AppCompatActivity {
                         switch (buffer[0]) {
                             case BUFFER_START_GAME:
                                 // get game info and start intent for game
-                                Log.d("Lobby", "Host started game");
                                 gameStarted = true;
                                 Intent intent = new Intent(getApplicationContext(), GameState.class);
                                 intent.putExtra("isHost", false);
 
+                                mHandler.obtainMessage(HANDLER_GAME_START, " ").sendToTarget();
                                 // Clear stuff
                                 bytes = mmInStream.read(buffer);
                                 buffer[bytes] = '\0';
