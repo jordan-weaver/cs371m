@@ -15,17 +15,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18dp"
-        android:text="STARTING A GAME
-        Enter a name (8 characters max, no spaces).  You can then host or join a game.
+        android:text="STARTING A GAME \n
+        Enter a name (8 characters max, no spaces).  You can then host or join a game.\n
 
         "/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18dp"
-        android:text="PLAYING THE GAME
-        Hold the phone sideways, with the bottom in your right hand.  Tap the left and right sides of the screen to turn.  Tap both to fire a laser!  First player to get hit by a laser loses.
-        Don't worry if you lose.  You can always restart the game from the end game screen!
+        android:text="\nPLAYING THE GAME\n
+        Hold the phone sideways, with the bottom in your right hand.  Tap the left and right sides of the screen to turn.  Tap both to fire a laser!  First player to get hit by a laser loses.\n
+        Don't worry if you lose.  You can always restart the game from the end game screen!\n
         "/>
 
 </LinearLayout>
