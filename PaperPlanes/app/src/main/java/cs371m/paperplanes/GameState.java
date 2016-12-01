@@ -253,13 +253,11 @@ public class GameState extends AppCompatActivity {
                                     + minions.get(1).position.y + "|" + gameover + "|";
                             if (hostShoot) {
                                 output = output + "1|";
-                                hostShoot = false;
                             } else {
                                 output = output + "0|";
                             }
                             if (playerShoot) {
                                 output = output + "1|";
-                                playerShoot = false;
                             } else {
                                 output = output + "0|";
                             }
