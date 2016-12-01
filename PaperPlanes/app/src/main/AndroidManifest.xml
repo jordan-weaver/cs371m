@@ -19,7 +19,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="GameState">
+        <activity android:name="GameState"
+            android:theme="@style/NoActionBar" >
         </activity>
         <activity android:name="Lobby"> </activity>
         <activity android:name=".JoinGameActivity"> </activity>

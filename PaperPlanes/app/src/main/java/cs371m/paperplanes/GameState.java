@@ -19,7 +19,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -50,10 +53,19 @@ public class GameState extends AppCompatActivity {
     private int width;
     private Context context;
 
+    private long button1Press;
+    private long button2Press;
+    private boolean hostShoot = false;
+    private boolean playerShoot = false;
+    private int gameover;
+    private static int deltaTime;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.game_state);
-        context = this;
 
         InitVars();
 
@@ -69,6 +81,8 @@ public class GameState extends AppCompatActivity {
         else
             playerNumber = 2;
 
+        context = this;
+
         minions = new ArrayList<>();
         gameView = (GameView) findViewById(R.id.gameview);
         gameView.setList(minions);
@@ -81,18 +95,21 @@ public class GameState extends AppCompatActivity {
 
         Button bankLeft = (Button) findViewById(R.id.bankLeft);
         Button bankRight = (Button) findViewById(R.id.bankRight);
+        button1Press = SystemClock.elapsedRealtime();
+        button2Press = SystemClock.elapsedRealtime();
+        gameover = 1;
 
         // Set the onClicks for these buttons
-        bankLeft.setOnClickListener(new View.OnClickListener() {
+        bankLeft.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View view) {
-
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return clickEvent(1);
             }
         });
-        bankRight.setOnClickListener(new View.OnClickListener() {
+        bankRight.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View view) {
-
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return clickEvent(2);
             }
         });
     }
@@ -121,21 +138,24 @@ public class GameState extends AppCompatActivity {
 
             time = (int) System.currentTimeMillis();
             LeagueMinion minion = new LeagueMinion(
-                    new Point(height / 2, width / 2),
-                    new Point(0, 1), LeagueMinionType.Circle, Color.BLUE
+                    new Point(width - 60, height / 2),
+                    new Point(0, 100), LeagueMinionType.Circle, Color.BLUE
             );
             minions.add(minion);
+            LeagueMinion minion2 = new LeagueMinion(
+                    new Point(60, height / 2),
+                    new Point(0, -100), LeagueMinionType.Circle, Color.RED
+            );
+            minions.add(minion2);
         }
 
         public void run() {
             byte[] buffer = new byte[1024];  // buffer store for the stream
             int bytes; // bytes returned from read()
-            boolean hostShoot = false;
-            boolean playerShoot = false;
 
             // Keep listening to the InputStream until an exception occurs
-            while (true) {
-                SystemClock.sleep(10);
+            while (gameover != 2) {
+                SystemClock.sleep(17);
                 try {
                     // Read from the InputStream
                     bytes = 0;
@@ -149,16 +169,22 @@ public class GameState extends AppCompatActivity {
                                 Log.d("GameThread", "Client Input");
                             }
                             int newTime = (int) System.currentTimeMillis();
-                            int deltaTime = (int)((newTime - time) * 0.33);
+                            deltaTime = (int)((newTime - time) * 0.33);
                             time = newTime;
+
+                            // Read client inputs
+
+                            // Update client info
+
+                            // Run game loop
                             for(int i = 0; i < minions.size(); ++i) {
-                                if (minions.get(i).position.x > width - 3 ||
-                                    minions.get(i).position.x < 3) {
+                                if (minions.get(i).position.x > width ||
+                                    minions.get(i).position.x < 0) {
                                     minions.get(i).position.x = Math.abs(minions.get(i).position.x -
                                             width + 3);
                                 }
-                                if (minions.get(i).position.y > height - 3 ||
-                                    minions.get(i).position.y < 3) {
+                                if (minions.get(i).position.y > height ||
+                                    minions.get(i).position.y < 0) {
                                     minions.get(i).position.y = Math.abs(minions.get(i).position.y -
                                             height + 3);
                                 }
@@ -168,22 +194,26 @@ public class GameState extends AppCompatActivity {
                             // Write to clients
                             /*
                                 My Format, delineated by |:
+                                0. Game over? No.
                                 1. Send host width and height in px
                                 2. Send locations in order of minion arr
                                 3. Host shooting?
                                 4. Player shooting?
                              */
-                            String output = width + "|" + height + "|" + minions.get(0).position.x +
-                                    "|" + minions.get(0).position.y + "|" + minions.get(0).position.x +
-                                    "|" + minions.get(0).position.y + "|";
+                            String output = width + "|" + height + "|"
+                                    + minions.get(0).position.x + "|" + minions.get(0).position.y
+                                    + "|" + minions.get(1).position.x + "|"
+                                    + minions.get(1).position.y + "|" + gameover + "|";
                             if (hostShoot) {
                                 output = output + "1|";
+                                hostShoot = false;
                             }
                             else {
                                 output = output + "0|";
                             }
                             if (playerShoot) {
                                 output = output + "1|";
+                                playerShoot = false;
                             }
                             else {
                                 output = output + "0|";
@@ -208,13 +238,15 @@ public class GameState extends AppCompatActivity {
                             String s = new String(newBuffer, StandardCharsets.UTF_8);
 
                             // Parse the stufffffffff
+                            Log.d("STRING", s);
                             String[] tokens = s.split("\\|");
-                            //int hostWidth = Integer.parseInt(tokens[0]);
-                            //int hostHeight = Integer.parseInt(tokens[1]);
+                            int hostWidth = Integer.parseInt(tokens[0]);
+                            int hostHeight = Integer.parseInt(tokens[1]);
                             minions.get(0).position.x = Integer.parseInt(tokens[2]);
                             minions.get(0).position.y = Integer.parseInt(tokens[3]);
-                            //minions.get(0).position.x = Integer.parseInt(tokens[5]);
-                            //minions.get(0).position.y = Integer.parseInt(tokens[6]);
+                            minions.get(1).position.x = Integer.parseInt(tokens[4]);
+                            minions.get(1).position.y = Integer.parseInt(tokens[5]);
+                            gameover = Integer.parseInt(tokens[6]);
 
                             // Draw the stufffffffff
                             runOnUiThread(new Runnable() {
@@ -254,6 +286,44 @@ public class GameState extends AppCompatActivity {
                 mmSocket.close();
             } catch (IOException e) { }
         }
+    }
+
+    public boolean clickEvent(int button) {
+        // Double press (less than 200ms apart)
+
+        if (Math.abs(button1Press - button2Press) < 200) {
+            if (isHost) {
+                hostShoot = true;
+            }
+            else {
+                playerShoot = true;
+            }
+        }
+        int i = 1;
+        if (isHost) {
+            i = 0;
+        }
+        int x = minions.get(i).direction.x;
+        int y = minions.get(i).direction.y;
+
+        // Bank left
+        if (button == 1) {
+            minions.get(i).direction.x = (int) (x * Math.cos(Math.toRadians(3.0))
+                    - y * Math.sin(Math.toRadians(3.0)));
+            minions.get(i).direction.y = (int) (y * Math.cos(Math.toRadians(3.0))
+                    + x * Math.sin(Math.toRadians(3.0)));
+            button1Press = SystemClock.elapsedRealtime();
+        }
+        // Bank right
+        if (button == 2) {
+            minions.get(i).direction.x = (int) (x * Math.cos(Math.toRadians(-3.0))
+                    - y * Math.sin(Math.toRadians(-3.0)));
+            minions.get(i).direction.y = (int) (y * Math.cos(Math.toRadians(-3.0))
+                    + x * Math.sin(Math.toRadians(-3.0)));
+            button2Press = SystemClock.elapsedRealtime();
+        }
+
+        return true;
     }
 
 }

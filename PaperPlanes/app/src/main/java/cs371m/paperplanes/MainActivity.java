@@ -1,6 +1,7 @@
 package cs371m.paperplanes;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.IntegerRes;
 import android.support.v7.app.AppCompatActivity;
@@ -18,12 +19,14 @@ public class MainActivity extends AppCompatActivity {
 
     public EditText username;
     public int usernameLen;
+    private Context context;
     private final static int REQUEST_ENABLE_BT = 888;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        context = this;
 
         InitVars();
         EstablishBluetooth();
@@ -39,12 +42,17 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), Lobby.class);
                 String user = username.getText().toString();
-                if (user.length() > usernameLen) {
-                    user = user.substring(0, usernameLen);
+                if (user.length() == 0) {
+                    Toast.makeText(context, "Please enter a name!", Toast.LENGTH_SHORT).show();
                 }
-                intent.putExtra("user", getString(R.string.usernameTag) + " " + user);
-                intent.putExtra("isHost", true);
-                startActivity(intent);
+                else {
+                    if (user.length() > usernameLen) {
+                        user = user.substring(0, usernameLen);
+                    }
+                    intent.putExtra("user", getString(R.string.usernameTag) + " " + user);
+                    intent.putExtra("isHost", true);
+                    startActivity(intent);
+                }
             }
         });
 
@@ -54,11 +62,16 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), JoinGameActivity.class);
                 String user = username.getText().toString();
-                if (user.length() > usernameLen) {
-                    user = user.substring(0, usernameLen);
+                if (user.length() == 0) {
+                    Toast.makeText(context, "Please enter a name!", Toast.LENGTH_SHORT).show();
                 }
-                intent.putExtra("user", getString(R.string.usernameTag) + " " + user);
-                startActivity(intent);
+                else {
+                    if (user.length() > usernameLen) {
+                        user = user.substring(0, usernameLen);
+                    }
+                    intent.putExtra("user", getString(R.string.usernameTag) + " " + user);
+                    startActivity(intent);
+                }
             }
         });
     }

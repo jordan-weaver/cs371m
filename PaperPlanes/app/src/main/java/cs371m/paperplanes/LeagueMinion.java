@@ -25,7 +25,7 @@ public class LeagueMinion {
     }
 
     public void move(int deltaTime) {
-        position.set(position.x + direction.x * deltaTime,
-                (int) (position.y + direction.y * deltaTime));
+        position.set(position.x + direction.x * deltaTime / 100,
+                position.y + direction.y * deltaTime / 100);
     }
 }

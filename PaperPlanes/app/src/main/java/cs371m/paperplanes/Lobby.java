@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -61,6 +62,7 @@ public class Lobby extends AppCompatActivity {
     private String username;
     private String deviceName;
     private BluetoothAdapter mBluetoothAdapter;
+    private Context context;
     ArrayAdapter<String> arrayAdapter;
     String MY_UUID;
     String NAME;
@@ -127,6 +129,7 @@ public class Lobby extends AppCompatActivity {
     }
 
     protected void InitVars() {
+        context = this;
         mHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message m) {
@@ -192,6 +195,8 @@ public class Lobby extends AppCompatActivity {
                     byteArray[i+1] = byteName[i];
                 }
                 dtThread.write(byteArray);
+                Toast.makeText(context, "Starting game!", Toast.LENGTH_SHORT).show();
+                SystemClock.sleep(2000);
                 Intent intent = new Intent(getApplicationContext(), GameState.class);
                 intent.putExtra("isHost", true);
                 startActivity(intent);
@@ -275,6 +280,14 @@ public class Lobby extends AppCompatActivity {
                                 gameStarted = true;
                                 Intent intent = new Intent(getApplicationContext(), GameState.class);
                                 intent.putExtra("isHost", false);
+
+                                // Clear stuff
+                                bytes = mmInStream.read(buffer);
+                                buffer[bytes] = '\0';
+                                if (mmInStream.available() > 0) {
+                                   mmInStream.read();
+                                }
+
                                 startActivity(intent);
                                 break;
 
