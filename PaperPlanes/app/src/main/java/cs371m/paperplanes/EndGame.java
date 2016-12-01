@@ -80,7 +80,6 @@ public class EndGame extends AppCompatActivity {
                     byteArray[i+1] = byteName[i];
                 }
                 dtThread2.write(byteArray);
-                dtThread2.resetConnection();
 
                 gameStarted = true;
 
@@ -127,11 +126,19 @@ public class EndGame extends AppCompatActivity {
                     Intent intent = new Intent(context, MainActivity.class);
                     startActivity(intent);
                 }
+                else if (m.what == HANDLER_RESTART) {
+                    Intent intent = new Intent(context, GameState.class);
+                    intent.putExtra("isHost", false);
+                    Toast.makeText(context, "Host has restarted the game!",
+                            Toast.LENGTH_SHORT).show();
+                    startActivity(intent);
+                }
             }
         };
         dtThread = new DataTransferThread();
         dtThread.start();
     }
+
     private class DataTransferThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
@@ -186,21 +193,8 @@ public class EndGame extends AppCompatActivity {
                             case BUFFER_START_GAME:
                                 // get game info and start intent for game
                                 Log.d("Lobby", "Host started game");
+                                mHandler.obtainMessage(HANDLER_RESTART, " ").sendToTarget();
                                 gameStarted = true;
-                                Intent intent = new Intent(getApplicationContext(), GameState.class);
-                                intent.putExtra("isHost", false);
-
-                                // Clear stuff
-                                bytes = mmInStream.read(buffer);
-                                buffer[bytes] = '\0';
-                                if (mmInStream.available() > 0) {
-                                    mmInStream.read();
-                                }
-
-                                Toast.makeText(context, "Host has restarted the game!",
-                                        Toast.LENGTH_SHORT).show();
-
-                                startActivity(intent);
                                 break;
 
                             case BUFFER_CANCEL_LOBBY:
