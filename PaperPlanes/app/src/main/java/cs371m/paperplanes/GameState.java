@@ -212,6 +212,7 @@ public class GameState extends AppCompatActivity {
                                     minions.get(1).direction.x = Integer.parseInt(clientIn[0]);
                                     minions.get(1).direction.y = Integer.parseInt(clientIn[1]);
                                     if (Integer.parseInt(clientIn[2]) == 1) {
+                                        Log.d("PLAYER SHOOT", "The player is shooting");
                                         playerShoot = true;
                                     }
                                 }
@@ -297,10 +298,6 @@ public class GameState extends AppCompatActivity {
                             gameover = Integer.parseInt(tokens[6]);
                             if (Integer.parseInt(tokens[7]) == 1)
                                 hostShoot = true;
-                            if (Integer.parseInt(tokens[8]) == 1)
-                                playerShoot = true;
-                            blueLaser = fireGuns(blueLaser);
-                            redLaser = fireGunsc(redLaser);
 
                             // Send to Host like this:
                             // 1. Direction Vector
@@ -315,9 +312,10 @@ public class GameState extends AppCompatActivity {
                             }
                             byte[] writable = s.getBytes();
                             write(writable);
-                            playerShoot = false;
 
                             // Draw the stufffffffff
+                            blueLaser = fireGuns(blueLaser);
+                            redLaser = fireGunsc(redLaser);
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
