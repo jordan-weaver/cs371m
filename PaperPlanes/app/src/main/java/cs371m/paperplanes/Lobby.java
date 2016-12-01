@@ -78,7 +78,7 @@ public class Lobby extends AppCompatActivity {
     private final int BUFFER_JOIN_GAME      = 3;
     private final int BUFFER_LEAVE_GAME     = 4;
 
-    boolean gameStarted = false;
+    public static boolean gameStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +89,7 @@ public class Lobby extends AppCompatActivity {
 
         if (isHost) {
             playerList.add(0, username.split(" ")[1]);
-            playerList.add(1, "Waiting for Player0");
+            playerList.add(1, "Waiting for Player 2");
 
             // Set the lobby name
             String[] token = username.split(" ");

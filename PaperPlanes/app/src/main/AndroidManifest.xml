@@ -33,6 +33,8 @@
             android:screenOrientation="portrait" >
         </elements>
         <activity android:name=".JoinGameActivity"> </activity>
+        <activity android:name=".EndGame" />
+        <activity android:name=".Help" />
     </application>
 
 </manifest>

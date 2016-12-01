@@ -98,7 +98,7 @@ public class GameState extends AppCompatActivity {
         Button bankRight = (Button) findViewById(R.id.bankRight);
         button1Press = SystemClock.elapsedRealtime();
         button2Press = SystemClock.elapsedRealtime();
-        gameover = 1;
+        gameover = 0;
 
         // Set the onClicks for these buttons
         bankLeft.setOnTouchListener(new View.OnTouchListener() {
@@ -182,7 +182,7 @@ public class GameState extends AppCompatActivity {
             }
 
             // Keep listening to the InputStream until an exception occurs
-            while (gameover != 2) {
+            while (gameover == 0) {
                 SystemClock.sleep(37);
                 try {
                     // Read from the InputStream
@@ -235,8 +235,9 @@ public class GameState extends AppCompatActivity {
 
                                 minions.get(i).move(deltaTime);
                             }
-                            int hit = checkHits();
-                            if (hit != 0) {
+                            gameover = checkHits();
+                            if (gameover != 0) {
+                                endGame(gameover);
                                 Log.d("GAME OVER", "THE GAME HAS ENDED");
                             }
                             // Write to clients
@@ -299,6 +300,10 @@ public class GameState extends AppCompatActivity {
                             if (Integer.parseInt(tokens[7]) == 1)
                                 hostShoot = true;
 
+                            if (gameover != 0) {
+                                // DO stuff
+                                endGame(gameover);
+                            }
                             // Send to Host like this:
                             // 1. Direction Vector
                             // 2. Shooting?
@@ -486,5 +491,16 @@ public class GameState extends AppCompatActivity {
             return 2;
         else
             return 0;
+    }
+
+    public void endGame(int result) {
+        // The game has ended!
+        // 1 = host win
+        // 2 = player win
+        // 3 = draw *unlikely though
+        Intent intent = new Intent(this, EndGame.class);
+        intent.putExtra("winner", result);
+        intent.putExtra("host", isHost);
+        startActivity(intent);
     }
 }

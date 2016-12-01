@@ -19,26 +19,36 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textSize="18dp"
         android:text="User Name: "/>
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="[insert name here]"
+        android:hint="[8 char limit]"
         android:maxLength="@integer/USERNAME_LENGTH"
         android:id="@+id/username_edittext"/>
     </LinearLayout>
 
     <Button
+        android:layout_marginTop="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="Host Game"
         android:id="@+id/host_game_button"/>
     <Button
+        android:layout_marginTop="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="Join Game"
         android:id="@+id/join_game_button"/>
 
+    <Button
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Help"
+        android:id="@+id/help"/>
 </LinearLayout>

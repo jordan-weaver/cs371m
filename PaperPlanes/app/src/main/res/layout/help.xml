@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/help"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+    tools:context="cs371m.paperplanes.Help">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18dp"
+        android:text="STARTING A GAME
+        Enter a name (8 characters max, no spaces).  You can then host or join a game.
+
+        "/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18dp"
+        android:text="PLAYING THE GAME
+        Hold the phone sideways, with the bottom in your right hand.  Tap the left and right sides of the screen to turn.  Tap both to fire a laser!  First player to get hit by a laser loses.
+        Don't worry if you lose.  You can always restart the game from the end game screen!
+        "/>
+
+</LinearLayout>
